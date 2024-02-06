@@ -1,16 +1,29 @@
-# This is a sample Python script.
+import discord
+from discord.ext import commands
+import settings
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+my_guild = discord.Object(id=settings.ID_SERVER)
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+class MyClient(commands.Bot):
+    def __init__(self):
+        super().__init__(command_prefix=commands.when_mentioned_or('.'), intents=discord.Intents().all())
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+        self.coglist = ["cogs.dynamicmenu"]
+
+    async def setup_hook(self):
+        for ext in self.coglist:
+            await self.load_extension(ext)
+
+        self.tree.copy_global_to(guild=my_guild)
+        await self.tree.sync(guild=my_guild)
+
+
+client = MyClient()
+
+
+@client.event
+async def on_ready():
+    print(f'Ready, started with {client.user}.')
+
+client.run(settings.TOKEN_DISCORD)
